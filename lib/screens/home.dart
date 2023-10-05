@@ -15,6 +15,13 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final todoList = Todo.todoList(); 
   final todoController = TextEditingController();
+  List<Todo> foundTodo = []; 
+
+  @override
+  void initState() {
+    foundTodo = todoList;
+    super.initState(); 
+  }
 
   @override
   Widget build(BuildContext context){
@@ -38,7 +45,7 @@ class _HomeState extends State<Home> {
                           fontWeight: FontWeight.w500
                         ),),
                       ),
-                      for( Todo todo in todoList)
+                      for( Todo todo in foundTodo)
                         TodoItem(
                           todo: todo,
                           onTodoChanged: handleTodoChange,
@@ -123,6 +130,24 @@ class _HomeState extends State<Home> {
     todoController.clear(); 
   }
 
+  void runFilter(String enteredKeyword){
+    List<Todo> results = []; 
+
+    if(enteredKeyword.isEmpty) {
+      results = todoList; 
+    }
+    else {
+      results = todoList.where(
+        (item) => 
+          item.todoText!.toLowerCase().contains(enteredKeyword.toLowerCase())
+        ).toList();
+    }
+
+    setState(() {
+      foundTodo = results; 
+    });
+  }
+
   Container searchBox() {
     return Container(
             padding: EdgeInsets.symmetric(horizontal: 15),
@@ -131,6 +156,7 @@ class _HomeState extends State<Home> {
               borderRadius: BorderRadius.circular(20)
             ),
             child: TextField(
+              onChanged: (value) => {runFilter(value)},
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.all(0),
                 prefixIcon: Icon(Icons.search, color: Colors.black, size: 20),
